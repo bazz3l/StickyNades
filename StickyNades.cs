@@ -3,8 +3,8 @@ using Rust;
 
 namespace Oxide.Plugins
 {
-    [Info("Sticky Nades", "Bazz3l", "1.0.2")]
-    [Description("Ability to throw nades at people and stick to them")]
+    [Info("Sticky Nades", "Bazz3l", "1.0.4")]
+    [Description("Ability to throw nades at people and stick to them.")]
     class StickyNades : RustPlugin
     {
         #region Fields
@@ -19,17 +19,15 @@ namespace Oxide.Plugins
 
         void OnExplosiveThrown(BasePlayer player, BaseEntity entity, ThrownWeapon item)
         {
-            if (!permission.UserHasPermission(player.UserIDString, _permUse))
+            if (entity == null || player == null || !permission.UserHasPermission(player.UserIDString, _permUse))
             {
                 return;
             }
 
-            if (entity.PrefabName.Contains("f1.deployed") || entity.PrefabName.Contains("beancan.deployed"))
+            if (entity.ShortPrefabName.Contains("f1.deployed") || entity.ShortPrefabName.Contains("beancan.deployed"))
             {
-                return;
+                entity.gameObject.AddComponent<StickyComponent>().player = player;
             }
-
-            entity.gameObject.AddComponent<StickyComponent>().player = player;
         }
         #endregion
 
