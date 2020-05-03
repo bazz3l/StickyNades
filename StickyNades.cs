@@ -19,15 +19,17 @@ namespace Oxide.Plugins
 
         void OnExplosiveThrown(BasePlayer player, BaseEntity entity, ThrownWeapon item)
         {
-            if (entity == null || player == null || !permission.UserHasPermission(player.UserIDString, _permUse))
+            if (!permission.UserHasPermission(player.UserIDString, _permUse))
             {
                 return;
             }
 
-            if (entity.ShortPrefabName.Contains("f1.deployed") || entity.ShortPrefabName.Contains("beancan.deployed"))
+            if (!(entity.ShortPrefabName.Contains("f1.deployed") || entity.ShortPrefabName.Contains("beancan.deployed")))
             {
-                entity.gameObject.AddComponent<StickyComponent>().player = player;
+                return;
             }
+
+            entity.gameObject.AddComponent<StickyComponent>().player = player;
         }
         #endregion
 
@@ -49,7 +51,7 @@ namespace Oxide.Plugins
 
                 gameObject.layer = (int) Layer.Reserved1;
 
-                SphereCollider sphere = _entity.gameObject.AddComponent<SphereCollider>();
+                SphereCollider sphere = gameObject.AddComponent<SphereCollider>();
                 sphere.isTrigger = true;
                 sphere.radius = 0.1f;
             }
