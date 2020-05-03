@@ -8,7 +8,6 @@ namespace Oxide.Plugins
     class StickyNades : RustPlugin
     {
         #region Fields
-        const string _nadePrefab = "assets/prefabs/weapons/f1 grenade/grenade.f1.deployed.prefab";
         const string _permUse = "stickynades.use";
         #endregion
 
