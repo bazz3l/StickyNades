@@ -1,42 +1,72 @@
 using UnityEngine;
+using Rust;
 
 namespace Oxide.Plugins
 {
-    [Info("Sticky Nades", "Bazz3l", "1.0.1")]
+    [Info("Sticky Nades", "Bazz3l", "1.0.2")]
     [Description("Ability to throw nades at people and stick to them")]
-
     class StickyNades : RustPlugin
     {
-        const string Perm   = "stickynades.use";
-        const string Prefab = "assets/prefabs/weapons/f1 grenade/grenade.f1.deployed.prefab";
+        #region Fields
+        const string _nadePrefab = "assets/prefabs/weapons/f1 grenade/grenade.f1.deployed.prefab";
+        const string _permUse = "stickynades.use";
+        #endregion
 
         #region Oxide
-        private void Init()
+        void Init()
         {
-            permission.RegisterPermission(Perm, this);
+            permission.RegisterPermission(_permUse, this);
         }
 
         void OnExplosiveThrown(BasePlayer player, BaseEntity entity, ThrownWeapon item)
         {
-            if (entity == null) return;
-            if (player == null || !permission.UserHasPermission(player.UserIDString, Perm)) return;
-            if (entity.ShortPrefabName != "grenade.f1.deployed") return;
-
-            RaycastHit hit;
-            var raycast = Physics.Raycast(player.eyes.HeadRay(), out hit, 50f);
-            BaseEntity rentity = raycast ? hit.GetEntity() : null;
-            if (rentity != null && rentity is BasePlayer)
+            if (!permission.UserHasPermission(player.UserIDString, _permUse))
             {
-                entity?.Kill();
+                return;
+            }
 
-                BaseEntity nade = GameManager.server?.CreateEntity(Prefab, rentity.transform.position);
-                if (nade == null) return;
-                nade.Spawn();
-                nade.SetParent(rentity);
-                nade.transform.localPosition = new Vector3(0.1f, 1f, 0f);
-                var rb = nade.GetComponent<Rigidbody>();
-                if (rb != null)
-                    rb.useGravity = false;
+            if (entity.PrefabName.Contains("f1.deployed") || entity.PrefabName.Contains("beancan.deployed"))
+            {
+                return;
+            }
+
+            entity.gameObject.AddComponent<StickyComponent>().player = player;
+        }
+        #endregion
+
+        #region Components
+        class StickyComponent : MonoBehaviour
+        {
+            BaseEntity _entity;
+            public BasePlayer player;
+
+            void Awake()
+            {
+                _entity = GetComponent<BaseEntity>();
+
+                if (_entity == null)
+                {
+                    Destroy(this);
+                    return;
+                }
+
+                gameObject.layer = (int) Layer.Reserved1;
+
+                SphereCollider sphere = _entity.gameObject.AddComponent<SphereCollider>();
+                sphere.isTrigger = true;
+                sphere.radius = 0.1f;
+            }
+
+            void OnCollisionEnter(Collision collision)
+            {
+                BasePlayer target = collision.gameObject.GetComponent<BasePlayer>();
+                if (target != null && target != player)
+                {
+                    _entity.SetParent(target);
+                    _entity.transform.localPosition = new Vector3(0f, 1f, 0f);
+
+                    Destroy(_entity.GetComponent<Rigidbody>());
+                }
             }
         }
         #endregion
