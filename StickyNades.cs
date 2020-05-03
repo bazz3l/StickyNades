@@ -3,7 +3,7 @@ using Rust;
 
 namespace Oxide.Plugins
 {
-    [Info("Sticky Nades", "Bazz3l", "1.0.4")]
+    [Info("Sticky Nades", "Bazz3l", "1.0.5")]
     [Description("Ability to throw nades at people and stick to them.")]
     class StickyNades : RustPlugin
     {
