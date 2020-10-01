@@ -5,7 +5,7 @@ using VLB;
 namespace Oxide.Plugins
 {
     [Info("Sticky Nades", "Bazz3l", "1.0.6")]
-    [Description("Ability to throw nades at people and stick to them.")]
+    [Description("Ability to throw grenades that stick to other players.")]
     public class StickyNades : RustPlugin
     {
         #region Fields
